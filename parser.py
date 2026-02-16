@@ -1,15 +1,17 @@
 import re
 import sys
+import json
 
 ip_pattern = r"(\d+\.\d+\.\d+\.\d+)"
 status_code = r"(HTTP/1.1\")\s(\d{3})\s"
 dictionary = {}
 threshold = 3
+export_mode = False
 
 if len(sys.argv) < 2:
     print("You forgot the file name.")
     sys.exit()
-elif len(sys.argv) == 3:
+elif len(sys.argv) == 3 and sys.argv[2].isdigit():
     threshold = int(sys.argv[2])
 
 with open(sys.argv[1]) as file:
@@ -35,3 +37,11 @@ for ip, data in dictionary.items():
         print(report_line + f" 🚨 SECURITY ALERT: {failed_logins + forbidden + not_found} suspicious attempts detected! 🚨")
     else:
         print(report_line)
+        
+if "--export" in sys.argv:
+    export_mode = True
+    
+if export_mode:
+    with open("output_file.json", "w") as output:
+        json.dump(dictionary, output, indent=4)
+        output.write("\n")
